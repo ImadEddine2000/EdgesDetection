@@ -1,7 +1,7 @@
 # EdgesDetection
 Avant de commancer :
 
-- STEP 1 : ```pip install -e ```
+- STEP 1 : ```pip install -e setup.py```
 - STEP 2 : run the code ```EdgesDetection\Model\ABC2\ConvertAndClean_smm.ipynb```
 - STEP3 : run the code ```EdgesDetection\Model\Model_Gauss_Map\ply2gauss_map.ipynb```
 
