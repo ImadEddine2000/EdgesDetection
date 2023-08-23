@@ -164,9 +164,11 @@ Test/
 Train/
 Validation/
 
-Application2/
-Test2/
-Train2/
-Validation2/
+Application_gm/
+Test_gm/
+Train_gm/
+Validation_gm/
+
+
 
 PCNNNet/

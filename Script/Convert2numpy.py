@@ -23,14 +23,16 @@ class UnknownExtensionException(Exception):
 
 
 
-def get_ssm_lb_ply_file(folder_path, extension):
+def get_ssm_lb_ply_file(folder_path:str, extension:str)->str:
+    """ Generator return file name from an extension"""
     with os.scandir(folder_path) as entries:
         for entry in entries:
             if entry.name.endswith(extension):
                 yield entry.name
 
 
-def ToNumpy(extension):
+def ToNumpy(extension:str):
+    """convert a ssm, lb, ply to numpy file"""
     def ssm2numpy(path, name, start=None):
         start_ = (12 if start == None else start)
         with open(os.path.join(path, name)) as f:
@@ -56,10 +58,12 @@ def ToNumpy(extension):
         return ply2numpy
 
 
-def save2numpy(array, path, extension):
+def save2numpy(array, path:str, extension:str)->None:
+    """Save to a NumPy file while preventing the use of pickle."""
     np.save(f'{path.rstrip(extension)}_{extension}.npy', array, allow_pickle=False)
 
-def convertAndSave(from_:str, to:str, extension:str, start=None):
+def convertAndSave(from_:str, to:str, extension:str, start=None)->None:
+    """Convert and save file(ssm, ply) with the corresponding lb file to numpy extension"""
     if extension != EXTENSION_LB and extension != EXTENSION_SSM and extension != EXTENSION_PLY:
         raise UnknownExtensionException()
     if not os.path.exists(to):
@@ -69,6 +73,7 @@ def convertAndSave(from_:str, to:str, extension:str, start=None):
 
 
 def get_numpy_file(folder_path, extension=FORMAT_SSM, shuffle=True):
+    """ Generator return a numpy file with its correponding lb """
     with os.scandir(folder_path) as entries:
         entries = list(entries)
         if shuffle:
@@ -77,7 +82,8 @@ def get_numpy_file(folder_path, extension=FORMAT_SSM, shuffle=True):
             if entry.name.endswith(extension):
                 yield entry.name, f'{entry.name.rstrip(extension)}{FORMAT_LB}'
 
-def nanClean(path, extension):
+def nanClean(path:str, extension:str):
+    """ Remove point with its correponding label which containing Nan value"""
     for numpy_file in get_numpy_file(path, extension=extension, shuffle=False):
         ssm_file = np.load(os.path.join(path, numpy_file[0]))
         lb_file = np.load(os.path.join(path, numpy_file[1]))
@@ -85,7 +91,14 @@ def nanClean(path, extension):
         np.save(os.path.join(path, numpy_file[0]), ssm_file[~ssm_mask], allow_pickle=False)
         np.save(os.path.join(path, numpy_file[1]), lb_file[~ssm_mask], allow_pickle=False)
 
-
+def nanClean2(path:str, extension:str):
+    """ Remove point with its correponding label which containing Nan value"""
+    for numpy_file in get_numpy_file(path, extension=extension, shuffle=False):
+        ply_file = np.load(os.path.join(path, numpy_file[0]))
+        lb_file = np.load(os.path.join(path, numpy_file[1]))
+        ssm_mask = np.isnan(ply_file).any(axis=1)
+        np.save(os.path.join(path, numpy_file[0]), ply_file[~ssm_mask], allow_pickle=False)
+        np.save(os.path.join(path, numpy_file[1]), lb_file[~ssm_mask], allow_pickle=False)
 
 
 

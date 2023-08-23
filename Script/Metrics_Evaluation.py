@@ -1,3 +1,4 @@
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 from Script.Convert2numpy import get_numpy_file
@@ -51,8 +52,18 @@ class Evaluation:
         self.datagen = datagen
         self.model = model
         self.metrics = None
+        self.select_cal_unit()
+
+    def select_cal_unit(self):
+        gpus = tf.config.list_physical_devices('GPU')
+        if len(gpus):
+            tf.config.set_visible_devices(gpus[0], 'GPU')
 
     def predict(self):
+        gpus = tf.config.list_physical_devices('GPU')
+        if len(gpus):
+            print("Running on GPU")
+            tf.config.set_visible_devices(gpus[0], 'GPU')
         self.predictions = []
         self.labels = []
         for i in tqdm(self.datagen, total=len(self.datagen)):
